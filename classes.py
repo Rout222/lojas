@@ -13,20 +13,22 @@ class sites(object):
 	def pegarTodosOsSites(self):
 		db=MySQLdb.connect(passwd="",db="lojas", user="root")
 		c=db.cursor()
-		c.execute("SELECT url, seletorProduto, seletorNome, seletorPreco, consultaInput, consultaTarget, moeda FROM sites")
+		c.execute("SELECT url, seletorProduto, seletorNome, seletorPreco, consultaInput, consultaTarget, moeda, seletorLike FROM sites")
 		sites = []
 		for s in c.fetchall():
 			sites.append(site(s))
 		self.lista = sites
 
 	def fazerPesquisas(self, arg):
+		listaDeProdutos = []
 		for s in self.lista:
-			s.criarPesquisa(arg)
+			listaDeProdutos.append(s.criarPesquisa(arg))
+		return listaDeProdutos
 class site(object):
 	"""docstring for sites"""
 	def __init__(self, s):
 		super(site, self).__init__()
-		if(len(s) == 7):
+		if(len(s) == 8):
 			self.url 			= s[0]
 			self.seletorProduto = s[1]
 			self.seletorNome 	= s[2]
@@ -34,6 +36,7 @@ class site(object):
 			self.consultaInput	= s[4]
 			self.consultaTarget	= s[5]
 			self.moeda			= s[6]
+			self.seletorLike	= s[7]
 		else:
 			 raise Exception('Argumentos inválidos')
 
@@ -45,19 +48,26 @@ class site(object):
 		return nome.strip()	
 
 	def precoPrintavel(self, preco):
-		return (self.moeda + re.sub("[^,.0-9]+", "", preco))
+		return (re.sub("[^,.0-9]+", "", preco))
+
+	def likePrintavel(self, like):
+		return (re.sub("[^0-9]+", "", like))
 
 	def criarPesquisa(self, arg):
 		urlDePesquisa = self.fazerUrl(arg)
+		print(urlDePesquisa)
 		opener = build_opener()
 		opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
 		try:
-			request = opener.open(urlDePesquisa, timeout=5)
+			request = opener.open(urlDePesquisa, timeout=10)
 		except Exception as e:
-			print("Time out!")
+			print(self.url + "Time out!")
 		else:
-			rHTML = BeautifulSoup(request.read(), "html.parser")
-			for x in rHTML.select(self.seletorProduto):
-				nome = self.nomePrintavel(x.select(self.seletorNome)[0].text)
+			reqHTML = BeautifulSoup(request.read(), "html.parser")
+			produto = []
+			for x in reqHTML.select(self.seletorProduto):
+				nome  = self.nomePrintavel ( x.select(self.seletorNome)[0].text)
 				preco = self.precoPrintavel(x.select(self.seletorPreco)[0].text)
-				print(nome , " = " , preco)
+				likes = self.likePrintavel ( x.select(self.seletorLike)[0].text)
+				produto.append({"Nome" : nome, "Preco" : preco,  "Moeda" : self.moeda, "Likes" : likes})
+			return produto
