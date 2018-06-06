@@ -45,12 +45,30 @@ class site(object):
 		return self.url.format(arg.translate(arg.maketrans(self.consultaInput, self.consultaTarget)))
 
 	def nomePrintavel(self, nome):
-		return nome.strip()	
+		try:
+			nome = nome[0].text.strip()
+		except Exception as e:
+			pass
+		else:
+			nome = "Erro capturando o nome do " + self.url +". Contate o administrador."
+		return nome	
 
 	def precoPrintavel(self, preco):
+		try:
+			preco = preco[0].text
+		except Exception as e:
+			pass
+		else:
+			preco = "Erro capturando o preço do " + self.url +". Contate o administrador."
 		return (re.sub("[^,.0-9]+", "", preco))
 
 	def likePrintavel(self, like):
+		try:
+			like = like[0].text
+		except Exception as e:
+			pass
+		else:
+			like = "Erro capturando o likes do " + self.url +". Contate o administrador."
 		return (re.sub("[^0-9]+", "", like))
 
 	def criarPesquisa(self, arg):
@@ -66,8 +84,8 @@ class site(object):
 			reqHTML = BeautifulSoup(request.read(), "html.parser")
 			produto = []
 			for x in reqHTML.select(self.seletorProduto):
-				nome  = self.nomePrintavel ( x.select(self.seletorNome)[0].text)
-				preco = self.precoPrintavel(x.select(self.seletorPreco)[0].text)
-				likes = self.likePrintavel ( x.select(self.seletorLike)[0].text)
+				nome  = self.nomePrintavel  ( x.select(self.seletorNome))
+				preco = self.precoPrintavel ( x.select(self.seletorPreco))
+				likes = self.likePrintavel  ( x.select(self.seletorLike))
 				produto.append({"Nome" : nome, "Preco" : preco,  "Moeda" : self.moeda, "Likes" : likes})
 			return produto
