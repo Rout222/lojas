@@ -1,0 +1,82 @@
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript">
+  .btn-product{
+    width: 100%;
+  }
+</script>
+<section class="search-banner bg-danger text-white py-5" id="search-banner">
+  <div class="container py-5 my-5">
+    <div class="row text-center pb-4">
+      <div class="col-md-12">
+        <h2>Importa Fácil - Seu ajudante!</h2>
+      </div>
+    </div>   
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-10">
+                <form method="post" accept-charset="utf-8">
+                  <div class="form-group ">
+                    <input id="inputState" name="input" class="form-control" />
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-dark">Buscar!</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      {% if lista|length >0 %}
+      <div class="container"><br><br>
+        <div class="col-md-12">
+        {% for produto in lista %}
+
+          <div class="col-sm-4 col-md-4">
+            <div class="thumbnail" style="min-height: 400px">
+              <h4 class="text-center"><span class="label label-info">Samsung</span></h4>
+              <img src="{{produto[5]}}" class="img-responsive">
+              <div class="caption">
+                <div class="row">
+                  <div class="col-md-6 col-xs-6">
+                    <h3>{{produto[3]}}</h3>
+                  </div>
+                  <div class="col-md-6 col-xs-6 price">
+                    <h3>
+                      <label>{{produto[2]}}{{produto[1]}}</label></h3>
+                    </div>
+                  </div>
+                  <p>{{produto[0]}}</p>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <a class="btn btn-primary btn-product"><span class="glyphicon glyphicon-thumbs-up"></span> Like</a> 
+                    </div>
+                    <div class="col-md-6">
+                      <a href="#" class="btn btn-success btn-product"><span class="glyphicon glyphicon-shopping-cart"></span> Buy</a></div>
+                    </div>
+
+                    <p> </p>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+            {% endif %}
+          </div>
+        </div>
+      </section>
+
+
+
+

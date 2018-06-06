@@ -13,7 +13,7 @@ class sites(object):
 	def pegarTodosOsSites(self):
 		db=MySQLdb.connect(passwd="",db="lojas", user="root")
 		c=db.cursor()
-		c.execute("SELECT url, seletorProduto, seletorNome, seletorPreco, consultaInput, consultaTarget, moeda, seletorLike FROM sites")
+		c.execute("SELECT url, seletorProduto, seletorNome, seletorPreco, consultaInput, consultaTarget, moeda, seletorLike, nome, seletorImagem, variavelImg FROM sites")
 		sites = []
 		for s in c.fetchall():
 			sites.append(site(s))
@@ -22,13 +22,13 @@ class sites(object):
 	def fazerPesquisas(self, arg):
 		listaDeProdutos = []
 		for s in self.lista:
-			listaDeProdutos.append(s.criarPesquisa(arg))
+			listaDeProdutos += s.criarPesquisa(arg)
 		return listaDeProdutos
 class site(object):
 	"""docstring for sites"""
 	def __init__(self, s):
 		super(site, self).__init__()
-		if(len(s) == 8):
+		if(len(s) == 11):
 			self.url 			= s[0]
 			self.seletorProduto = s[1]
 			self.seletorNome 	= s[2]
@@ -37,6 +37,9 @@ class site(object):
 			self.consultaTarget	= s[5]
 			self.moeda			= s[6]
 			self.seletorLike	= s[7]
+			self.nome 			= s[8]
+			self.seletorImagem	= s[9]
+			self.variavelImg	= s[10]
 		else:
 			 raise Exception('Argumentos inválidos')
 
@@ -46,34 +49,34 @@ class site(object):
 
 	def nomePrintavel(self, nome):
 		try:
-			nome = nome[0].text.strip()
+			nome = nome[0].text
 		except Exception as e:
-			pass
-		else:
 			nome = "Erro capturando o nome do " + self.url +". Contate o administrador."
-		return nome	
+		return nome.strip()
 
 	def precoPrintavel(self, preco):
 		try:
 			preco = preco[0].text
 		except Exception as e:
-			pass
-		else:
 			preco = "Erro capturando o preço do " + self.url +". Contate o administrador."
 		return (re.sub("[^,.0-9]+", "", preco))
+
+	def urlPrintavel(self, url):
+		try:
+			url = url[0][self.variavelImg]
+		except Exception as e:
+			url = None
+		return (url)
 
 	def likePrintavel(self, like):
 		try:
 			like = like[0].text
 		except Exception as e:
-			pass
-		else:
 			like = "Erro capturando o likes do " + self.url +". Contate o administrador."
 		return (re.sub("[^0-9]+", "", like))
 
 	def criarPesquisa(self, arg):
 		urlDePesquisa = self.fazerUrl(arg)
-		print(urlDePesquisa)
 		opener = build_opener()
 		opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
 		try:
@@ -87,5 +90,7 @@ class site(object):
 				nome  = self.nomePrintavel  ( x.select(self.seletorNome))
 				preco = self.precoPrintavel ( x.select(self.seletorPreco))
 				likes = self.likePrintavel  ( x.select(self.seletorLike))
-				produto.append({"Nome" : nome, "Preco" : preco,  "Moeda" : self.moeda, "Likes" : likes})
+				urlImg =self.urlPrintavel  ( x.select(self.seletorImagem))
+				if(urlImg is not None):
+					produto.append([nome, preco, self.moeda, likes, self.nome, urlImg])
 			return produto
